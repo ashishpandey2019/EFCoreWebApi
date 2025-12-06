@@ -154,6 +154,37 @@ namespace EFCoreWebApi.Migrations
                     b.ToTable("OrderItems");
                 });
 
+            modelBuilder.Entity("EFCoreWebApi.Models.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("EFCoreWebApi.Models.Restaurant", b =>
                 {
                     b.Property<int>("Id")
@@ -276,6 +307,17 @@ namespace EFCoreWebApi.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("EFCoreWebApi.Models.RefreshToken", b =>
+                {
+                    b.HasOne("EFCoreWebApi.Models.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("EFCoreWebApi.Models.Restaurant", b =>
                 {
                     b.HasOne("EFCoreWebApi.Models.User", "User")
@@ -303,6 +345,8 @@ namespace EFCoreWebApi.Migrations
             modelBuilder.Entity("EFCoreWebApi.Models.User", b =>
                 {
                     b.Navigation("Orders");
+
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }
