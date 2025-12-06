@@ -1,0 +1,95 @@
+<div class="cart-container">
+  <div class="cart-header">
+    <h1>🛒 Shopping Cart</h1>
+    <p *ngIf="currentUser" class="user-greeting">Shopping for {{ currentUser.username }}</p>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <span class="loading-spinner"></span>
+    <p>Loading your cart...</p>
+  </div>
+
+  <div *ngIf="!isLoading && (!cart || cart.items.length === 0)" class="empty-cart">
+    <div class="empty-icon">🛒</div>
+    <p>Your cart is empty</p>
+    <p class="empty-message">Start shopping and add items to your cart!</p>
+    <button (click)="navigateTo('/restaurants')" class="btn btn-primary btn-lg">
+      Browse Restaurants
+    </button>
+  </div>
+
+  <div *ngIf="!isLoading && cart && cart.items.length > 0" class="cart-content">
+    <div class="cart-main">
+      <div class="cart-items-section">
+        <h2>Items in Cart ({{ cart.items.length }})</h2>
+        <div class="cart-items">
+          <div *ngFor="let item of cart.items" class="cart-item">
+            <div class="item-image">
+              <img [src]="item.foodItem?.imageUrl || 'https://via.placeholder.com/100?text=Food'" 
+                   [alt]="item.foodItem?.name" />
+            </div>
+            <div class="item-details">
+              <h3>{{ item.foodItem?.name }}</h3>
+              <p class="item-description">{{ item.foodItem?.description }}</p>
+              <p class="price">Price: <strong>${{ item.foodItem?.price?.toFixed(2) }}</strong></p>
+            </div>
+            <div class="item-quantity">
+              <button (click)="decreaseQuantity(item)" class="qty-btn" title="Decrease quantity">−</button>
+              <input type="number" [(ngModel)]="item.quantity" (change)="updateQuantity(item)" class="qty-input" />
+              <button (click)="increaseQuantity(item)" class="qty-btn" title="Increase quantity">+</button>
+            </div>
+            <div class="item-total">
+              <p class="total-price">${{ (item.foodItem?.price * item.quantity).toFixed(2) }}</p>
+            </div>
+            <button (click)="removeItem(item)" class="btn btn-danger btn-sm" title="Remove from cart">Remove</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-summary">
+        <h3>Order Summary</h3>
+        
+        <div class="summary-section">
+          <div class="summary-row">
+            <span class="label">Subtotal:</span>
+            <span class="value">${{ getSubtotal().toFixed(2) }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Delivery Fee:</span>
+            <span class="value">${{ deliveryFee.toFixed(2) }}</span>
+          </div>
+          <div class="summary-row tax">
+            <span class="label">Tax (10%):</span>
+            <span class="value">${{ (getSubtotal() * 0.1).toFixed(2) }}</span>
+          </div>
+          <div class="summary-row total">
+            <span class="label">Total:</span>
+            <span class="value">${{ (getSubtotal() + deliveryFee + (getSubtotal() * 0.1)).toFixed(2) }}</span>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-group">
+            <label for="deliveryAddress">Delivery Address <span class="required">*</span></label>
+            <textarea
+              id="deliveryAddress"
+              [(ngModel)]="deliveryAddress"
+              class="form-control"
+              placeholder="Enter your delivery address"
+              required
+              rows="3"
+            ></textarea>
+          </div>
+
+          <button (click)="checkout()" class="btn btn-primary btn-block btn-lg" [disabled]="!deliveryAddress || isCheckingOut">
+            {{ isCheckingOut ? '⏳ Processing...' : '✓ Checkout' }}
+          </button>
+
+          <button (click)="navigateTo('/restaurants')" class="btn btn-secondary btn-block">
+            ← Continue Shopping
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

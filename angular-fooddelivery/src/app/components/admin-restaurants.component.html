@@ -1,0 +1,76 @@
+<div class="admin-restaurants">
+  <div class="header">
+    <h1>Restaurants Management</h1>
+  </div>
+
+  <div class="filters">
+    <input 
+      type="text" 
+      placeholder="Search by name or owner..." 
+      [(ngModel)]="searchTerm"
+      (input)="filterRestaurants()"
+      class="search-input"
+    >
+    <select [(ngModel)]="filterStatus" (change)="filterRestaurants()" class="filter-select">
+      <option value="all">All Status</option>
+      <option value="Active">Active</option>
+      <option value="Suspended">Suspended</option>
+      <option value="Inactive">Inactive</option>
+    </select>
+  </div>
+
+  <div class="table-container">
+    <table class="restaurants-table">
+      <thead>
+        <tr>
+          <th>Restaurant Name</th>
+          <th>Owner</th>
+          <th>Category</th>
+          <th>Contact</th>
+          <th>Rating</th>
+          <th>Orders</th>
+          <th>Join Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let restaurant of filteredRestaurants" [class]="restaurant.status.toLowerCase()">
+          <td class="name">{{ restaurant.name }}</td>
+          <td>{{ restaurant.owner }}</td>
+          <td><span class="category-badge">{{ restaurant.category }}</span></td>
+          <td>
+            <div class="contact-info">
+              <div>{{ restaurant.phone }}</div>
+              <div>{{ restaurant.email }}</div>
+            </div>
+          </td>
+          <td class="rating">⭐ {{ restaurant.rating }}</td>
+          <td class="orders">{{ restaurant.orders }}</td>
+          <td>{{ restaurant.joinDate }}</td>
+          <td>
+            <span [class]="'status-badge ' + restaurant.status.toLowerCase()">
+              {{ restaurant.status }}
+            </span>
+          </td>
+          <td class="actions">
+            <select 
+              [value]="restaurant.status"
+              (change)="updateRestaurantStatus(restaurant.id, $any($event.target).value)"
+              class="status-select"
+            >
+              <option value="Active">Active</option>
+              <option value="Suspended">Suspend</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+            <button class="btn-delete" (click)="deleteRestaurant(restaurant.id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="filteredRestaurants.length === 0" class="empty-state">
+    <p>No restaurants found matching your filters</p>
+  </div>
+</div>

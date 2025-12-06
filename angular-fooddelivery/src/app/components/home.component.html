@@ -1,0 +1,158 @@
+<div class="home-container">
+  <!-- Hero Section for Not Logged In Users -->
+  <section *ngIf="!isLoggedIn" class="hero-section">
+    <div class="hero-background"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">Hungry? Order Now! 🍽️</h1>
+      <p class="hero-subtitle">Fast delivery of your favorite food from the best restaurants</p>
+      
+      <div class="hero-stats">
+        <div *ngFor="let stat of featuredStats" class="stat-item">
+          <div class="stat-icon">{{ stat.icon }}</div>
+          <div class="stat-info">
+            <div class="stat-value">{{ stat.value }}</div>
+            <div class="stat-label">{{ stat.label }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <button (click)="navigateTo('/login')" class="btn btn-large btn-primary">
+          <span>Sign In to Order</span>
+        </button>
+        <button (click)="navigateTo('/register')" class="btn btn-large btn-secondary">
+          <span>Create Free Account</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Welcome Section for Logged In Customers -->
+  <section *ngIf="isCustomer" class="welcome-section customer-welcome">
+    <div class="welcome-background"></div>
+    <div class="welcome-content">
+      <h1>Welcome back, {{ currentUser?.username }}! 👋</h1>
+      <p>What would you like to order today?</p>
+      <button (click)="navigateTo('/customer/home')" class="btn btn-large btn-primary">
+        Browse Restaurants
+      </button>
+    </div>
+  </section>
+
+  <!-- Welcome Section for Restaurant Owners -->
+  <section *ngIf="isRestaurantOwner" class="welcome-section owner-welcome">
+    <div class="welcome-background"></div>
+    <div class="welcome-content">
+      <h1>Welcome, Restaurant Owner! 🏪</h1>
+      <p>Manage your restaurant and track orders</p>
+      <div class="welcome-buttons">
+        <button (click)="navigateTo('/owner/home')" class="btn btn-large btn-primary">
+          Go to Dashboard
+        </button>
+        <button (click)="navigateTo('/owner/orders')" class="btn btn-large btn-secondary">
+          View Orders
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Welcome Section for Admin -->
+  <section *ngIf="isAdmin" class="welcome-section admin-welcome">
+    <div class="welcome-background"></div>
+    <div class="welcome-content">
+      <h1>Admin Dashboard 📊</h1>
+      <p>Welcome back, {{ currentUser?.username }}</p>
+      <div class="admin-quick-actions">
+        <button (click)="navigateTo('/admin/home')" class="quick-action-btn">
+          <span class="icon">📈</span>
+          <span class="label">Analytics</span>
+        </button>
+        <button (click)="navigateTo('/admin/users')" class="quick-action-btn">
+          <span class="icon">👥</span>
+          <span class="label">Users</span>
+        </button>
+        <button (click)="navigateTo('/admin/restaurants')" class="quick-action-btn">
+          <span class="icon">🏪</span>
+          <span class="label">Restaurants</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Welcome Section for Delivery Partners -->
+  <section *ngIf="isDeliveryPartner" class="welcome-section delivery-welcome">
+    <div class="welcome-background"></div>
+    <div class="welcome-content">
+      <h1>Welcome, Delivery Partner! 🚚</h1>
+      <p>{{ currentUser?.username }}, check your available deliveries</p>
+      <div class="welcome-buttons">
+        <button (click)="navigateTo('/deliveries')" class="btn btn-large btn-primary">
+          My Deliveries
+        </button>
+        <button (click)="navigateTo('/orders')" class="btn btn-large btn-secondary">
+          Available Orders
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Restaurants Section -->
+  <section class="featured-section">
+    <div class="section-header">
+      <h2>{{ isAdmin ? 'All Restaurants' : isDeliveryPartner ? 'Active Restaurants' : 'Featured Restaurants' }}</h2>
+      <p *ngIf="!isAdmin && !isDeliveryPartner">Discover the best restaurants near you</p>
+    </div>
+
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading restaurants...</p>
+    </div>
+
+    <div *ngIf="!isLoading && restaurants.length === 0" class="empty-state">
+      <p>😢 No restaurants available</p>
+    </div>
+
+    <div *ngIf="!isLoading && restaurants.length > 0" class="restaurants-grid">
+      <div *ngFor="let restaurant of restaurants.slice(0, 6)" 
+           class="restaurant-card"
+           [ngClass]="{'editable-card': isAdmin}"
+           (click)="isCustomer && !isAdmin && viewRestaurant(restaurant.id)">
+        
+        <div class="card-image">
+          <img [src]="restaurant.imageUrl || 'https://via.placeholder.com/400x250?text=' + restaurant.name" 
+               [alt]="restaurant.name" />
+          <div class="card-overlay"></div>
+        </div>
+
+        <div class="card-content">
+          <h3 class="card-title">{{ restaurant.name }}</h3>
+          <p class="card-description">{{ restaurant.description }}</p>
+          
+          <div class="card-details">
+            <div class="detail-item">
+              <span class="detail-label">📍</span>
+              <span>{{ restaurant.address }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">📞</span>
+              <span>{{ restaurant.phoneNumber }}</span>
+            </div>
+          </div>
+
+          <div *ngIf="isAdmin" class="card-actions">
+            <button (click)="editRestaurant(restaurant.id)" class="btn-action btn-edit">
+              ✏️ Edit
+            </button>
+            <button class="btn-action btn-delete">
+              🗑️ Delete
+            </button>
+          </div>
+
+          <div *ngIf="isCustomer || isDeliveryPartner" class="card-footer">
+            <button class="btn-view">View Menu →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,163 @@
+<div class="owner-home">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <h1>{{ restaurant?.name }}</h1>
+      <p class="restaurant-info">{{ restaurant?.category }} • {{ restaurant?.deliveryTime }}</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        [class.open]="restaurant?.status === 'Open'"
+        [class.closed]="restaurant?.status === 'Closed'"
+        class="status-btn"
+        (click)="toggleRestaurantStatus()"
+      >
+        {{ restaurant?.status }}
+      </button>
+      <button class="add-menu-btn" (click)="openMenuModal()">+ Add Menu Item</button>
+    </div>
+  </div>
+
+  <!-- Stats Section -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.totalOrders }}</div>
+      <div class="stat-label">Total Orders</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.revenue }}</div>
+      <div class="stat-label">Today's Revenue</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">⭐ {{ stats.averageRating }}</div>
+      <div class="stat-label">Rating</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.activeMenuItems }}</div>
+      <div class="stat-label">Menu Items</div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Today's Orders -->
+    <div class="section">
+      <div class="section-header">
+        <h2>Today's Orders</h2>
+        <a href="#" class="view-all">View All</a>
+      </div>
+      
+      <div class="orders-container">
+        <div *ngIf="todayOrders.length === 0" class="empty-state">
+          <p>No orders yet today</p>
+        </div>
+        
+        <div *ngFor="let order of todayOrders" class="order-card">
+          <div class="order-header">
+            <span class="order-id">Order #{{ order.id }}</span>
+            <span class="order-time">{{ order.time }}</span>
+          </div>
+          
+          <div class="order-details">
+            <p><strong>Customer:</strong> {{ order.customerName }}</p>
+            <p><strong>Items:</strong> {{ order.items }} items</p>
+            <p><strong>Total:</strong> {{ order.total }}</p>
+          </div>
+          
+          <div class="order-status">
+            <select 
+              [value]="order.status"
+              (change)="updateOrderStatus(order.id, $any($event.target).value)"
+              class="status-select"
+            >
+              <option value="Pending">Pending</option>
+              <option value="Preparing">Preparing</option>
+              <option value="Ready">Ready</option>
+              <option value="Delivered">Delivered</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Selling Items -->
+    <div class="section">
+      <div class="section-header">
+        <h2>Top Selling Items</h2>
+      </div>
+      
+      <div class="top-items-container">
+        <div *ngFor="let item of topItems" class="top-item">
+          <div class="item-rank"></div>
+          <div class="item-info">
+            <p class="item-name">{{ item.name }}</p>
+            <p class="item-sold">{{ item.sold }} sold</p>
+          </div>
+          <div class="item-revenue">{{ item.revenue }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Menu Item Modal -->
+  <div *ngIf="showMenuModal" class="modal-overlay" (click)="closeMenuModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Add New Menu Item</h2>
+        <button class="close-btn" (click)="closeMenuModal()">✕</button>
+      </div>
+      
+      <form (ngSubmit)="addMenuItem()" class="menu-form">
+        <div class="form-group">
+          <label>Item Name</label>
+          <input 
+            type="text" 
+            [(ngModel)]="newMenuItem.name"
+            name="name"
+            placeholder="e.g., Margherita Pizza"
+            required
+          >
+        </div>
+        
+        <div class="form-group">
+          <label>Category</label>
+          <select [(ngModel)]="newMenuItem.category" name="category" required>
+            <option value="">Select Category</option>
+            <option value="pizza">Pizza</option>
+            <option value="pasta">Pasta</option>
+            <option value="salad">Salad</option>
+            <option value="dessert">Dessert</option>
+            <option value="beverage">Beverage</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Price</label>
+          <input 
+            type="number" 
+            [(ngModel)]="newMenuItem.price"
+            name="price"
+            placeholder="e.g., 12.99"
+            step="0.01"
+            required
+          >
+        </div>
+        
+        <div class="form-group">
+          <label>Description</label>
+          <textarea 
+            [(ngModel)]="newMenuItem.description"
+            name="description"
+            placeholder="Describe your item"
+            rows="4"
+          ></textarea>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="closeMenuModal()">Cancel</button>
+          <button type="submit" class="btn-submit">Add Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

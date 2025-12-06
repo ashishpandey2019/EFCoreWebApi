@@ -1,0 +1,63 @@
+<div class="owner-orders">
+  <div class="header">
+    <h1>Restaurant Orders</h1>
+    <div class="filter-section">
+      <label>Filter by Status:</label>
+      <select [(ngModel)]="filterStatus" (change)="filterOrders()" class="status-filter">
+        <option value="all">All Orders</option>
+        <option value="Pending">Pending</option>
+        <option value="Preparing">Preparing</option>
+        <option value="Ready">Ready</option>
+        <option value="Delivered">Delivered</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="orders-container">
+    <div *ngIf="filteredOrders.length === 0" class="empty-state">
+      <p>No orders found for the selected filter</p>
+    </div>
+
+    <div *ngFor="let order of filteredOrders" class="order-card">
+      <div class="order-header">
+        <div class="order-info">
+          <h3>Order #{{ order.id }}</h3>
+          <p class="customer">{{ order.customer }}</p>
+        </div>
+        <div class="order-meta">
+          <span class="date">{{ order.date }} {{ order.time }}</span>
+          <span class="status-badge" [style.backgroundColor]="getStatusColor(order.status)">
+            {{ order.status }}
+          </span>
+        </div>
+      </div>
+
+      <div class="order-details">
+        <div class="items">
+          <h4>Items ({{ order.items }})</h4>
+          <ul>
+            <li *ngFor="let item of order.items_list">{{ item }}</li>
+          </ul>
+        </div>
+        <div class="total">
+          <p>Total: <strong>{{ order.total }}</strong></p>
+        </div>
+      </div>
+
+      <div class="order-actions">
+        <select 
+          [value]="order.status"
+          (change)="updateOrderStatus(order.id, $any($event.target).value)"
+          class="status-update"
+        >
+          <option value="Pending">Pending</option>
+          <option value="Preparing">Preparing</option>
+          <option value="Ready">Ready</option>
+          <option value="Delivered">Delivered</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>

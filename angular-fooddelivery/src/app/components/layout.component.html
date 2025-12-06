@@ -1,0 +1,80 @@
+<nav class="navbar" [ngClass]="{'navbar-guest': !isLoggedIn, 'navbar-customer': isCustomer, 'navbar-admin': isAdmin, 'navbar-delivery': isDeliveryPartner}">
+  <div class="navbar-container">
+    <a routerLink="/" class="navbar-brand">🍔 FoodDelivery</a>
+    
+    <ul class="navbar-menu">
+      <li><a routerLink="/" routerLinkActive="active">Home</a></li>
+      
+      <!-- Guest Menu -->
+      <li *ngIf="!isLoggedIn"><a routerLink="/restaurants" routerLinkActive="active">Restaurants</a></li>
+      
+      <!-- Customer Menu -->
+      <li *ngIf="isCustomer">
+        <a routerLink="/customer/home" routerLinkActive="active">Browse</a>
+      </li>
+      <li *ngIf="isCustomer">
+        <a routerLink="/customer/cart" routerLinkActive="active">🛒 Cart</a>
+      </li>
+      <li *ngIf="isCustomer">
+        <a routerLink="/customer/orders" routerLinkActive="active">My Orders</a>
+      </li>
+      
+      <!-- Restaurant Owner Menu -->
+      <li *ngIf="isRestaurantOwner">
+        <a routerLink="/owner/home" routerLinkActive="active">Dashboard</a>
+      </li>
+      <li *ngIf="isRestaurantOwner">
+        <a routerLink="/owner/menu" routerLinkActive="active">Menu</a>
+      </li>
+      <li *ngIf="isRestaurantOwner">
+        <a routerLink="/owner/orders" routerLinkActive="active">Orders</a>
+      </li>
+      
+      <!-- Admin Menu -->
+      <li *ngIf="isAdmin">
+        <a routerLink="/admin/home" routerLinkActive="active">📊 Dashboard</a>
+      </li>
+      <li *ngIf="isAdmin">
+        <a routerLink="/admin/users" routerLinkActive="active">Users</a>
+      </li>
+      <li *ngIf="isAdmin">
+        <a routerLink="/admin/restaurants" routerLinkActive="active">Restaurants</a>
+      </li>
+      
+      <!-- Delivery Partner Menu -->
+      <li *ngIf="isDeliveryPartner">
+        <a routerLink="/deliveries" routerLinkActive="active">🚚 My Deliveries</a>
+      </li>
+      <li *ngIf="isDeliveryPartner">
+        <a routerLink="/orders" routerLinkActive="active">Available Orders</a>
+      </li>
+    </ul>
+
+    <div class="navbar-auth">
+      <!-- User Info -->
+      <div *ngIf="isLoggedIn" class="user-section">
+        <span class="user-info">
+          <span class="username">{{ currentUserName }}</span>
+          <span class="role-badge" [ngClass]="{'role-admin': isAdmin, 'role-customer': isCustomer, 'role-delivery': isDeliveryPartner, 'role-owner': isRestaurantOwner}">
+            {{ currentUserRole }}
+          </span>
+        </span>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="auth-buttons">
+        <button *ngIf="!isLoggedIn" (click)="navigateTo('/login')" class="btn btn-primary">Login</button>
+        <button *ngIf="!isLoggedIn" (click)="navigateTo('/register')" class="btn btn-secondary">Register</button>
+        <button *ngIf="isLoggedIn" (click)="logout()" class="btn btn-danger">Logout</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="footer">
+  <p>&copy; 2025 Food Delivery App. All rights reserved.</p>
+</footer>

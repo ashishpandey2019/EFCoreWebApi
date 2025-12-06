@@ -1,0 +1,68 @@
+<div class="orders-container">
+  <div class="orders-header">
+    <h1>{{ isAdmin ? '📋 All Orders' : isDeliveryPartner ? '🚚 Available Orders' : 'My Orders' }}</h1>
+    <p *ngIf="currentUser" class="user-info">{{ currentUser.username }} - {{ currentUser.role }}</p>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <span class="loading-spinner"></span>
+    <p>Loading orders...</p>
+  </div>
+
+  <div *ngIf="!isLoading && orders.length === 0" class="no-orders">
+    <div class="empty-icon">📭</div>
+    <p class="empty-title">{{ isAdmin ? 'No orders found' : 'You haven\'t placed any orders yet' }}</p>
+    <p class="empty-message">
+      {{ isAdmin ? 'Orders will appear here when customers place them' : 'Start shopping and place your first order!' }}
+    </p>
+    <button *ngIf="!isAdmin && !isDeliveryPartner" (click)="navigateTo('/restaurants')" class="btn btn-primary btn-lg">
+      Start Ordering
+    </button>
+  </div>
+
+  <div *ngIf="!isLoading && orders.length > 0" class="orders-list">
+    <div *ngFor="let order of orders" class="order-card" [ngClass]="getStatusClass(order.status)">
+      <div class="order-header">
+        <div class="order-info">
+          <div class="order-title">
+            <span class="order-id">Order #{{ order.id }}</span>
+            <span class="order-date">{{ order.createdAt | date: 'MMM d, y HH:mm' }}</span>
+          </div>
+        </div>
+        <div class="order-status-badge" [ngClass]="'status-' + order.status.toLowerCase()">
+          {{ order.status }}
+        </div>
+      </div>
+
+      <div class="order-items">
+        <div class="items-header">
+          <span>Items</span>
+          <span class="item-count">({{ order.orderItems.length }})</span>
+        </div>
+        <div *ngFor="let item of order.orderItems" class="order-item">
+          <div class="item-info">
+            <span class="qty">{{ item.quantity }}x</span>
+            <span class="item-name">Food Item</span>
+          </div>
+          <span class="item-price">${{ (item.price * item.quantity).toFixed(2) }}</span>
+        </div>
+      </div>
+
+      <div class="order-footer">
+        <div class="total-section">
+          <span class="total-label">Total:</span>
+          <span class="total-price">${{ order.totalPrice.toFixed(2) }}</span>
+        </div>
+        <div class="order-actions">
+          <button *ngIf="isCustomer && order.status !== 'Delivered' && order.status !== 'Cancelled'" 
+                  (click)="cancelOrder(order.id)" class="btn btn-danger btn-sm">
+            Cancel Order
+          </button>
+          <button *ngIf="isAdmin || isDeliveryPartner" class="btn btn-secondary btn-sm">
+            View Details
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

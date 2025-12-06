@@ -1,0 +1,197 @@
+<div class="customer-home">
+  <!-- Delivery Address Section -->
+  <section class="delivery-section">
+    <div class="delivery-container">
+      <div class="delivery-info">
+        <span class="delivery-icon">📍</span>
+        <div class="delivery-details">
+          <p class="delivery-label">Deliver to</p>
+          <p class="delivery-address">{{ deliveryAddress }}</p>
+        </div>
+      </div>
+      <button class="change-address-btn">Change Address</button>
+    </div>
+  </section>
+
+  <!-- Search Section -->
+  <section class="search-section">
+    <div class="search-container">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          placeholder="Search restaurants or dishes..." 
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          class="search-input"
+        >
+      </div>
+    </div>
+  </section>
+
+  <!-- Promotions Section -->
+  <section class="promotions-section" *ngIf="promotions.length > 0">
+    <div class="section-header">
+      <h3>🎉 Special Offers</h3>
+      <a href="#" class="see-all">See all</a>
+    </div>
+    <div class="promotions-scroll">
+      <div *ngFor="let promo of promotions" class="promo-card">
+        <div class="promo-header">
+          <h4>{{ promo.title }}</h4>
+          <span class="promo-code">{{ promo.code }}</span>
+        </div>
+        <p class="promo-details">{{ promo.restaurants }}</p>
+        <p class="promo-expires">Expires in {{ promo.expires }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cuisine Filter Section -->
+  <section class="cuisines-section">
+    <div class="section-header">
+      <h3>🍽️ Cuisine Type</h3>
+    </div>
+    <div class="cuisines-scroll">
+      <button 
+        *ngFor="let cuisine of cuisines"
+        [class.active]="selectedCuisine === cuisine.id"
+        (click)="selectedCuisine = cuisine.id; onCuisineChange()"
+        class="cuisine-btn"
+      >
+        <span class="cuisine-icon">{{ cuisine.icon }}</span>
+        <span class="cuisine-name">{{ cuisine.name }}</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Sort Section -->
+  <section class="sort-section">
+    <div class="sort-bar">
+      <label for="sort">Sort by:</label>
+      <select [(ngModel)]="sortBy" (change)="onSortChange()" class="sort-select">
+        <option value="rating">Top Rated</option>
+        <option value="delivery">Fastest Delivery</option>
+        <option value="distance">Nearest</option>
+      </select>
+    </div>
+    <div class="results-count">
+      <span *ngIf="!isLoading">Found <strong>{{ filteredRestaurants.length }}</strong> restaurants</span>
+    </div>
+  </section>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading delicious restaurants...</p>
+  </div>
+
+  <!-- Popular Restaurants Section (when no filters applied) -->
+  <section class="popular-section" *ngIf="!isLoading && selectedCuisine === 'all' && !searchTerm">
+    <div class="section-header">
+      <h3>⭐ Most Popular</h3>
+    </div>
+    <div class="restaurants-grid">
+      <div *ngFor="let restaurant of popularRestaurants" class="restaurant-card popular-card">
+        <div class="restaurant-image">
+          <img [src]="restaurant.image" [alt]="restaurant.name" class="card-image">
+          <div class="discount-badge" *ngIf="restaurant.discount">
+            {{ restaurant.discount }} OFF
+          </div>
+          <div class="badge" *ngIf="restaurant.badge">
+            {{ restaurant.badge }}
+          </div>
+        </div>
+        
+        <div class="restaurant-content">
+          <div class="restaurant-header">
+            <h4 class="restaurant-name">{{ restaurant.name }}</h4>
+            <div class="rating">
+              <span *ngFor="let star of getStarArray(restaurant.rating)" class="star">
+                {{ star === 1 ? '★' : '☆' }}
+              </span>
+              <span class="rating-value" [style.color]="getRatingColor(restaurant.rating)">
+                {{ restaurant.rating }}
+              </span>
+            </div>
+          </div>
+
+          <p class="cuisines">{{ restaurant.cuisines.join(' • ') }}</p>
+          
+          <div class="restaurant-meta">
+            <span class="meta-item">⏱️ {{ restaurant.deliveryTime }}</span>
+            <span class="meta-item">🚚 {{ restaurant.deliveryFee }}</span>
+            <span class="meta-item">📍 {{ restaurant.distance }}</span>
+          </div>
+
+          <div class="popular-items">
+            <p class="label">Popular: </p>
+            <p class="items">{{ restaurant.popular.slice(0, 2).join(', ') }}</p>
+          </div>
+
+          <button class="order-btn" (click)="viewRestaurantMenu(restaurant.id)">
+            View Menu →
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- All Restaurants Section -->
+  <section class="all-restaurants-section" *ngIf="!isLoading">
+    <div class="section-header" *ngIf="selectedCuisine !== 'all' || searchTerm">
+      <h3>🏪 All Restaurants</h3>
+    </div>
+
+    <div class="restaurants-grid" *ngIf="filteredRestaurants.length > 0">
+      <div *ngFor="let restaurant of filteredRestaurants" class="restaurant-card">
+        <div class="restaurant-image">
+          <img [src]="restaurant.image" [alt]="restaurant.name" class="card-image">
+          <div class="discount-badge" *ngIf="restaurant.discount">
+            {{ restaurant.discount }} OFF
+          </div>
+          <div class="badge" *ngIf="restaurant.badge">
+            {{ restaurant.badge }}
+          </div>
+        </div>
+        
+        <div class="restaurant-content">
+          <div class="restaurant-header">
+            <h4 class="restaurant-name">{{ restaurant.name }}</h4>
+            <div class="rating">
+              <span *ngFor="let star of getStarArray(restaurant.rating)" class="star">
+                {{ star === 1 ? '★' : '☆' }}
+              </span>
+              <span class="rating-value" [style.color]="getRatingColor(restaurant.rating)">
+                {{ restaurant.rating }}
+              </span>
+            </div>
+          </div>
+
+          <p class="cuisines">{{ restaurant.cuisines.join(' • ') }}</p>
+          
+          <div class="restaurant-meta">
+            <span class="meta-item">⏱️ {{ restaurant.deliveryTime }}</span>
+            <span class="meta-item">🚚 {{ restaurant.deliveryFee }}</span>
+            <span class="meta-item">📍 {{ restaurant.distance }}</span>
+          </div>
+
+          <div class="popular-items">
+            <p class="label">Popular: </p>
+            <p class="items">{{ restaurant.popular.slice(0, 2).join(', ') }}</p>
+          </div>
+
+          <button class="order-btn" (click)="viewRestaurantMenu(restaurant.id)">
+            View Menu →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="no-results" *ngIf="filteredRestaurants.length === 0">
+      <div class="empty-icon">😕</div>
+      <h3>No restaurants found</h3>
+      <p>Try adjusting your filters or search term</p>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,278 @@
+<div class="admin-home">
+  <!-- Header -->
+  <div class="admin-header">
+    <h1>Admin Dashboard</h1>
+    <p>Platform Management & Analytics</p>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ adminStats.totalUsers }}</div>
+        <div class="stat-label">Total Users</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🏪</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ adminStats.totalRestaurants }}</div>
+        <div class="stat-label">Total Restaurants</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ adminStats.totalOrders }}</div>
+        <div class="stat-label">Total Orders</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ adminStats.platformRevenue }}</div>
+        <div class="stat-label">Platform Revenue</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs-navigation">
+    <button 
+      [class.active]="selectedTab === 'overview'"
+      (click)="selectTab('overview')"
+      class="tab-btn"
+    >
+      📊 Overview
+    </button>
+    <button 
+      [class.active]="selectedTab === 'users'"
+      (click)="selectTab('users')"
+      class="tab-btn"
+    >
+      👥 Users Management
+    </button>
+    <button 
+      [class.active]="selectedTab === 'restaurants'"
+      (click)="selectTab('restaurants')"
+      class="tab-btn"
+    >
+      🏪 Restaurants Management
+    </button>
+    <button 
+      [class.active]="selectedTab === 'orders'"
+      (click)="selectTab('orders')"
+      class="tab-btn"
+    >
+      📦 Recent Orders
+    </button>
+  </div>
+
+  <!-- Overview Tab -->
+  <div *ngIf="selectedTab === 'overview'" class="tab-content">
+    <div class="section">
+      <h2>Recent Orders</h2>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Restaurant</th>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of recentOrders">
+              <td class="order-id">#{{ order.id }}</td>
+              <td>{{ order.customer }}</td>
+              <td>{{ order.restaurant }}</td>
+              <td class="amount">{{ order.amount }}</td>
+              <td>{{ order.date }}</td>
+              <td>
+                <span [class]="'status-badge ' + getOrderStatusClass(order.status)">
+                  {{ order.status }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Management Tab -->
+  <div *ngIf="selectedTab === 'users'" class="tab-content">
+    <div class="section">
+      <div class="section-header">
+        <h2>Users Management</h2>
+        <div class="search-filters">
+          <input 
+            type="text" 
+            placeholder="Search users..." 
+            [(ngModel)]="searchTerm"
+            class="search-input"
+          >
+          <select [(ngModel)]="filterStatus" class="filter-select">
+            <option value="all">All Status</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Suspended">Suspended</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Join Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of filterUsers()">
+              <td>{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+              <td><span class="role-badge">{{ user.role }}</span></td>
+              <td>{{ user.joinDate }}</td>
+              <td>
+                <span [class]="'status-badge ' + user.status.toLowerCase()">
+                  {{ user.status }}
+                </span>
+              </td>
+              <td class="actions">
+                <button 
+                  (click)="suspendUser(user.id)"
+                  class="btn-small"
+                  [class.suspend]="user.status === 'Active'"
+                  [class.activate]="user.status !== 'Active'"
+                >
+                  {{ user.status === 'Active' ? 'Suspend' : 'Activate' }}
+                </button>
+                <button 
+                  (click)="deleteUser(user.id)"
+                  class="btn-small delete"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Restaurants Management Tab -->
+  <div *ngIf="selectedTab === 'restaurants'" class="tab-content">
+    <div class="section">
+      <div class="section-header">
+        <h2>Restaurants Management</h2>
+        <div class="search-filters">
+          <input 
+            type="text" 
+            placeholder="Search restaurants..." 
+            [(ngModel)]="searchTerm"
+            class="search-input"
+          >
+          <select [(ngModel)]="filterStatus" class="filter-select">
+            <option value="all">All Status</option>
+            <option value="Active">Active</option>
+            <option value="Suspended">Suspended</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Restaurant Name</th>
+              <th>Owner</th>
+              <th>Category</th>
+              <th>Rating</th>
+              <th>Join Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let restaurant of filterRestaurants()">
+              <td class="restaurant-name">{{ restaurant.name }}</td>
+              <td>{{ restaurant.owner }}</td>
+              <td>{{ restaurant.category }}</td>
+              <td>
+                <span class="rating">⭐ {{ restaurant.rating }}</span>
+              </td>
+              <td>{{ restaurant.joinDate }}</td>
+              <td>
+                <span [class]="'status-badge ' + restaurant.status.toLowerCase()">
+                  {{ restaurant.status }}
+                </span>
+              </td>
+              <td class="actions">
+                <button 
+                  (click)="suspendRestaurant(restaurant.id)"
+                  class="btn-small"
+                  [class.suspend]="restaurant.status === 'Active'"
+                  [class.activate]="restaurant.status !== 'Active'"
+                >
+                  {{ restaurant.status === 'Active' ? 'Suspend' : 'Activate' }}
+                </button>
+                <button 
+                  (click)="deleteRestaurant(restaurant.id)"
+                  class="btn-small delete"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders Tab -->
+  <div *ngIf="selectedTab === 'orders'" class="tab-content">
+    <div class="section">
+      <h2>All Recent Orders</h2>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Restaurant</th>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of recentOrders">
+              <td class="order-id">#{{ order.id }}</td>
+              <td>{{ order.customer }}</td>
+              <td>{{ order.restaurant }}</td>
+              <td class="amount">{{ order.amount }}</td>
+              <td>{{ order.date }}</td>
+              <td>
+                <span [class]="'status-badge ' + getOrderStatusClass(order.status)">
+                  {{ order.status }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
