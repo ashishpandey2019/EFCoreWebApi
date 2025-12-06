@@ -7,6 +7,18 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200", "http://localhost:4300")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
 // Add services to the container.
 var connection = builder.Configuration.GetConnectionString("AppDb");
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -62,6 +74,9 @@ builder.Services.AddAuthentication(options =>
 
 
 var app = builder.Build();
+
+// Enable CORS
+app.UseCors("AllowAngular");
 
 // 👇 Enable Swagger UI only in development
 if (app.Environment.IsDevelopment())
